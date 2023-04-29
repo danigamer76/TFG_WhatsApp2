@@ -5,11 +5,11 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.tfg_whatsapp2.R
-import com.example.tfg_whatsapp2.modelo.User
+import com.example.tfg_whatsapp2.modelo.UserModel
 
 class ContactsAdapter(
     val context: Context,
-    val contactList: ArrayList<User>):RecyclerView.Adapter<ContactsViewHolder>() {
+    val contactList: ArrayList<UserModel>):RecyclerView.Adapter<ContactsViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ContactsViewHolder {
         val v = LayoutInflater.from(parent.context).inflate(R.layout.recycleview_contacts,parent,false)
         return ContactsViewHolder(v)

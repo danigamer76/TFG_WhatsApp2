@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.tfg_whatsapp2.Adapter.ContactsAdapter
 import com.example.tfg_whatsapp2.R
-import com.example.tfg_whatsapp2.modelo.User
+import com.example.tfg_whatsapp2.modelo.UserModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -26,7 +26,7 @@ class Contacts : Fragment() {
     private lateinit var fbStore: FirebaseFirestore
     private lateinit var auth: FirebaseAuth
 
-    private val contactInfo = arrayListOf<User>()
+    private val contactInfo = arrayListOf<UserModel>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -46,7 +46,7 @@ class Contacts : Fragment() {
                     if (i.id==auth.currentUser?.uid){
                             Log.d("onFound","This is a User Account")
                     }else{
-                        val contact = User(i.getString("userName").toString(),
+                        val contact = UserModel(i.getString("userName").toString(),
                             i.getString("userEmail").toString(),
                             i.getString("userStatus").toString(),
                             i.getString("userProfilePhoto").toString())

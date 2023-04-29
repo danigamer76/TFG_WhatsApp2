@@ -21,4 +21,8 @@
     <string name="username">UserName</string>
     <string name="useremail">UserEmail</string>
     <string name="userstatus">UserStatus</string>
+    <string name="introduce_tu_mensaje">Introduce tu mensaje</string>
+    <string name="enviar_el_mensaje">Enviar el Mensaje</string>
+    <string name="recievermessage">RecieverMessage</string>
+    <string name="sendermessage">SenderMessage</string>
 </resources>

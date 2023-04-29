@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "277735517592",
+    "project_id": "tfg-whatsapp2",
+    "storage_bucket": "tfg-whatsapp2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:277735517592:android:33b7b2a3f9970e5254cfed",
+        "android_client_info": {
+          "package_name": "com.example.tfg_whatsapp2"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "277735517592-vu93gssi6ggir74o250viooir8bu6hp1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD-jqWuc9-XaS0BnhIFIHjJwO71gQLkSGs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "277735517592-75l9ffhq79mm4h3equ3cud3lt6q0a0bk.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

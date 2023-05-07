@@ -10,7 +10,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.tfg_whatsapp2.Adapter.ContactsAdapter
+import com.example.tfg_whatsapp2.Adapter.Contacts.ContactsAdapter
 import com.example.tfg_whatsapp2.R
 import com.example.tfg_whatsapp2.modelo.UserModel
 import com.google.firebase.auth.FirebaseAuth
@@ -41,22 +41,23 @@ class Contacts : Fragment() {
         fbStore = FirebaseFirestore.getInstance()
         fbStore.collection("users").get().addOnSuccessListener {
             if (!it.isEmpty){
+                contactInfo.clear()
                 val listContact = it.documents
-                for(i in listContact){
-                    if (i.id==auth.currentUser?.uid){
-                            Log.d("onFound","This is a User Account")
-                    }else{
-                        val contact = UserModel(i.getString("userName").toString(),
-                            i.getString("userEmail").toString(),
-                            i.getString("userStatus").toString(),
-                            i.getString("userProfilePhoto").toString())
-                        contactInfo.add(contact)
-                        adapterContacts = ContactsAdapter(context as Activity,contactInfo)
-                        recyclerViewContacts.adapter = adapterContacts
-                        recyclerViewContacts.layoutManager = layoutManagerContacts
-                        recyclerViewContacts.addItemDecoration(DividerItemDecoration(recyclerViewContacts.context,
+                for(doc in listContact){
+                    val contact = UserModel(
+                        doc.id,
+                        doc.getString("userName").toString(),
+                        doc.getString("userEmail").toString(),
+                        doc.getString("userStatus").toString(),
+                        doc.getString("userProfilePhoto").toString())
+                    contactInfo.add(contact)
+                    adapterContacts = ContactsAdapter(context as Activity,contactInfo)
+                    recyclerViewContacts.adapter = adapterContacts
+                    recyclerViewContacts.layoutManager = layoutManagerContacts
+                    recyclerViewContacts.addItemDecoration(
+                        DividerItemDecoration(
+                            recyclerViewContacts.context,
                             (layoutManagerContacts as LinearLayoutManager).orientation))
-                    }
                 }
             }
         }

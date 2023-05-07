@@ -1,10 +1,10 @@
-package com.example.tfg_whatsapp2
+package com.example.tfg_whatsapp2.Adapter.Message
 
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.example.tfg_whatsapp2.Adapter.ContactsViewHolder
+import com.example.tfg_whatsapp2.R
 import com.example.tfg_whatsapp2.modelo.MessageModel
 import com.google.firebase.auth.FirebaseAuth
 

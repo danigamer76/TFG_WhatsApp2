@@ -25,4 +25,5 @@
     <string name="enviar_el_mensaje">Enviar el Mensaje</string>
     <string name="recievermessage">RecieverMessage</string>
     <string name="sendermessage">SenderMessage</string>
+    <string name="search">Search</string>
 </resources>

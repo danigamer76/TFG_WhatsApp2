@@ -1,4 +1,4 @@
-package com.example.tfg_whatsapp2
+package com.example.tfg_whatsapp2.Adapter.Message
 
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView

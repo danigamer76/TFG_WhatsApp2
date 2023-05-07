@@ -13,11 +13,18 @@
         android:layout_height="?attr/actionBarSize"
         android:background="@color/mycolor10"/>
 
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerViewSearch"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:visibility="gone"/>
     <FrameLayout
         android:id="@+id/frameLayoutMenu"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="start"/>
+        android:layout_gravity="start"
+        android:visibility="gone"/>
 
 
 </LinearLayout>

@@ -1,4 +1,4 @@
-package com.example.tfg_whatsapp2.Adapter
+package com.example.tfg_whatsapp2.Adapter.Contacts
 
 import android.content.Context
 import android.view.LayoutInflater

@@ -10,9 +10,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
-import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.tfg_whatsapp2.Adapter.Message.MessageAdapter
 import com.example.tfg_whatsapp2.modelo.MessageModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.auth.FirebaseAuth
@@ -37,7 +37,7 @@ class Messaging : Fragment() {
 
     private val messageInfo = arrayListOf<MessageModel>()
 
-    @SuppressLint("NotifyDataSetChanged")
+    @SuppressLint("NotifyDataSetChanged", "SuspiciousIndentation")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -108,7 +108,7 @@ class Messaging : Fragment() {
                 it["messageId"] = 1
                 it["messageSender"] = userid
                 //it["messageReceiver"] = ""
-                it["time"]
+                it["time"] = timeStamp
            }
             db.set(messageObject).addOnCanceledListener {
                 Log.d("onSuccess", "Successfully Send Message")

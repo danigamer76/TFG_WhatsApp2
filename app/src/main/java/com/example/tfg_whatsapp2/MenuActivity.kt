@@ -15,6 +15,8 @@ import com.example.tfg_whatsapp2.databinding.ActivityMenuBinding
 import com.example.tfg_whatsapp2.fragmentsMenu.About
 import com.example.tfg_whatsapp2.fragmentsMenu.Profile
 import com.example.tfg_whatsapp2.modelo.UserModel
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 
@@ -58,6 +60,10 @@ class MenuActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
                     binding.recyclerViewSearch.visibility = View.VISIBLE
                     binding.toolbarMenu.title = "Contactos"
                     setSupportActionBar(binding.toolbarMenu)
+                    searchRecycler.addItemDecoration(
+                        DividerItemDecoration(
+                            searchRecycler.context,
+                            (searchLayoutManager as LinearLayoutManager).orientation))
                 }
             }
         }
@@ -104,9 +110,12 @@ class MenuActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
                     Log.e("onError", "Some Error Occured")
                 } else {
                     if (!snapshot?.isEmpty!!) {
-                        searchInfo.clear()
                         val searchList = snapshot.documents
                         for (doc in searchList) {
+
+                            if (FirebaseAuth.getInstance().currentUser!!.uid == doc.id){
+                                Log.d("onSuccess", "User Running the app")
+                            }else{
                             val contact = UserModel(
                                 doc.id,
                                 doc.getString("userName").toString(),
@@ -118,10 +127,7 @@ class MenuActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
                             searchAdapter = SearchAdapter(this, searchInfo)
                             searchRecycler.adapter = searchAdapter
                             searchRecycler.layoutManager = searchLayoutManager
-                            searchRecycler.addItemDecoration(
-                                DividerItemDecoration(
-                                    searchRecycler.context,
-                                    (searchLayoutManager as LinearLayoutManager).orientation))
+                            }
                         }
                     }
                 }

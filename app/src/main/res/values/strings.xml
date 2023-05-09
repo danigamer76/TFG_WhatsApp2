@@ -26,4 +26,5 @@
     <string name="recievermessage">RecieverMessage</string>
     <string name="sendermessage">SenderMessage</string>
     <string name="search">Search</string>
+    <string name="add_friend">ADD FRIEND</string>
 </resources>

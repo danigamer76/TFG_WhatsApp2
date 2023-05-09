@@ -2,7 +2,6 @@ package com.example.tfg_whatsapp2.fragmentsMenu
 
 import android.app.Activity
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -19,9 +18,9 @@ import com.google.firebase.firestore.FirebaseFirestore
 
 class Contacts : Fragment() {
 
-    private lateinit var recyclerViewContacts: RecyclerView
-    private lateinit var layoutManagerContacts: RecyclerView.LayoutManager
-    private lateinit var adapterContacts: ContactsAdapter
+    private lateinit var contactsRecyclerView: RecyclerView
+    private lateinit var contactsLayoutManager: RecyclerView.LayoutManager
+    private lateinit var contactsAdapter: ContactsAdapter
 
     private lateinit var fbStore: FirebaseFirestore
     private lateinit var auth: FirebaseAuth
@@ -34,8 +33,8 @@ class Contacts : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_contacts, container, false)
-        recyclerViewContacts = view.findViewById(R.id.contactsRecyclerView)
-        layoutManagerContacts = LinearLayoutManager(context as Activity)
+        contactsRecyclerView = view.findViewById(R.id.contactsRecyclerView)
+        contactsLayoutManager = LinearLayoutManager(context as Activity)
 
         auth = FirebaseAuth.getInstance()
         fbStore = FirebaseFirestore.getInstance()
@@ -51,13 +50,13 @@ class Contacts : Fragment() {
                         doc.getString("userStatus").toString(),
                         doc.getString("userProfilePhoto").toString())
                     contactInfo.add(contact)
-                    adapterContacts = ContactsAdapter(context as Activity,contactInfo)
-                    recyclerViewContacts.adapter = adapterContacts
-                    recyclerViewContacts.layoutManager = layoutManagerContacts
-                    recyclerViewContacts.addItemDecoration(
+                    contactsAdapter = ContactsAdapter(context as Activity,contactInfo)
+                    contactsRecyclerView.adapter = contactsAdapter
+                    contactsRecyclerView.layoutManager = contactsLayoutManager
+                    contactsRecyclerView.addItemDecoration(
                         DividerItemDecoration(
-                            recyclerViewContacts.context,
-                            (layoutManagerContacts as LinearLayoutManager).orientation))
+                            contactsRecyclerView.context,
+                            (contactsLayoutManager as LinearLayoutManager).orientation))
                 }
             }
         }

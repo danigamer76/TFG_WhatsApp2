@@ -13,9 +13,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.tfg_whatsapp2.Adapter.Chats.ChatsAdapter
 import com.example.tfg_whatsapp2.Adapter.Contacts.ContactsAdapter
 import com.example.tfg_whatsapp2.R
+import com.example.tfg_whatsapp2.modelo.ChatModel
 import com.example.tfg_whatsapp2.modelo.UserModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 
 class Chats : Fragment() {
 
@@ -26,7 +28,7 @@ class Chats : Fragment() {
     private lateinit var fbStore: FirebaseFirestore
     private lateinit var auth: FirebaseAuth
 
-    private val chatsInfo = arrayListOf<UserModel>()
+    private val chatsInfo = arrayListOf<ChatModel>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -46,14 +48,22 @@ class Chats : Fragment() {
                 if (!snapshot?.isEmpty!!){
                     chatsInfo.clear()
                     val list = snapshot.documents
-                    for(doc in list){
-                        val obj = UserModel(
-                            doc.id,
-                            doc.getString("userName").toString(),
-                            doc.getString("userEmail").toString(),
-                            doc.getString("userStatus").toString(),
-                            doc.getString("userProfilePhoto").toString())
-                        chatsInfo.add(obj)
+                    for (doc in list){
+                        fbStore.collection("chats").document(doc.id).collection("message").orderBy("id",Query.Direction.DESCENDING).addSnapshotListener{messageSnapshot,exception ->
+                            if (exception!=null){
+                                Log.d("error","Some Error Ocurred")
+                            }else{
+                                val messageSnapshot = messageSnapshot?.documents
+                                if (!messageSnapshot.isNullOrEmpty()) {
+                                    val id = messageSnapshot[0]
+                                    val message = id.get("message").toString()
+                                    val reciver = id.get("reciver").toString()
+                                    val obj = ChatModel(reciver, message, id.getString("").toString())
+                                    chatsInfo.add(obj)
+                                }
+                            }
+
+                        }
                         chatsAdapter = ChatsAdapter(context as Activity,chatsInfo)
                         chatsRecyclerView.adapter = chatsAdapter
                         chatsRecyclerView.layoutManager = chatsLayoutManager

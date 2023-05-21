@@ -5,13 +5,14 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.tfg_whatsapp2.R
+import com.example.tfg_whatsapp2.modelo.ChatModel
 import com.example.tfg_whatsapp2.modelo.UserModel
 
 class ChatsAdapter(
     val context: Context,
-    val chatList:ArrayList<UserModel>):RecyclerView.Adapter<ChatsViewHolder>() {
+    val chatList:ArrayList<ChatModel>):RecyclerView.Adapter<ChatsViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ChatsViewHolder {
-        val v = LayoutInflater.from(parent.context).inflate(R.layout.recycleview_contacts,parent,false)
+        val v = LayoutInflater.from(parent.context).inflate(R.layout.recycleview_chat,parent,false)
         return ChatsViewHolder(v)
     }
 

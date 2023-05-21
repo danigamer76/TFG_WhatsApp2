@@ -8,7 +8,7 @@ import android.view.ViewGroup
 import com.example.tfg_whatsapp2.R
 
 
-class Estados : Fragment() {
+class Status : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?

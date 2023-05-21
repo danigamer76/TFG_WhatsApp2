@@ -18,6 +18,7 @@ class ChatsAdapter(
 
     override fun onBindViewHolder(holder: ChatsViewHolder, position: Int) {
         holder.render(chatList[position])
+
     }
 
     override fun getItemCount() = chatList.size

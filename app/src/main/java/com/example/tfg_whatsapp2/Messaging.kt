@@ -18,10 +18,12 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.Query
 import java.util.*
 
 class Messaging : Fragment() {
+
     private lateinit var messageRecyclerView: RecyclerView
     private lateinit var sendMessageEditText: EditText
     private lateinit var sendMessageButton: FloatingActionButton
@@ -32,69 +34,114 @@ class Messaging : Fragment() {
     private lateinit var messageLayoutManager : RecyclerView.LayoutManager
     private lateinit var messageAdapter : MessageAdapter
     private lateinit var db : DocumentReference
+    private lateinit var db1 : DocumentReference
 
     private lateinit var userid : String
+    private lateinit var friendID: String
+    private lateinit var chatroomid : String
+    private lateinit var chatID : String
+    private lateinit var chatroomUID : String
 
     private val messageInfo = arrayListOf<MessageModel>()
+    private var register : ListenerRegistration? = null
+    private var register1 : ListenerRegistration? = null
 
-    @SuppressLint("NotifyDataSetChanged", "SuspiciousIndentation")
+    @SuppressLint("NotifyDataSetChanged")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_messaging, container, false)
-
-        fstore = FirebaseFirestore.getInstance()
-        fauth = FirebaseAuth.getInstance()
-        userid = fauth.currentUser?.uid.toString()
-        fstore.collection("chats").whereArrayContains("uids",userid).addSnapshotListener{snapshot,exception ->
-            if (exception!=null){
-                Log.d("onError", "Error in fetching Data")
-            }else{
-                val list = snapshot?.documents
-                if(list != null){
-                    for(doc in list){
-                        db = fstore.collection("chats").document(doc.id).collection("message").document()
-                        fstore.collection("chats").document(doc.id).collection("message").orderBy("id",Query.Direction.ASCENDING)
-                            .addSnapshotListener{snapshot,exception ->
-                            if (snapshot != null){
-                                if (!snapshot.isEmpty){
-                                    messageInfo.clear()
-                                    val list = snapshot.documents
-                                    for (document in list){
-                                        val obj = MessageModel(document.getString("messageSender").toString(),
-                                            document.getString("message").toString(),
-                                            document.getString("messageTime").toString())
-                                            messageInfo.add(obj)
-                                            messageAdapter = MessageAdapter(context as Activity,messageInfo)
-                                            messageRecyclerView.adapter = messageAdapter
-                                            messageRecyclerView.layoutManager = messageLayoutManager
-                                            messageRecyclerView.scrollToPosition(list.size-1)
-                                            //messageRecyclerView.addItemDecoration(DividerItemDecoration(messageRecyclerView.context,(messageLayoutManager as LinearLayoutManager).orientation))
-                                            messageRecyclerView.adapter!!.notifyDataSetChanged()
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-        }
-
         messageRecyclerView = view.findViewById(R.id.messageRecyclerView)
         sendMessageButton = view.findViewById(R.id.btnSendMessage)
         sendMessageEditText = view.findViewById(R.id.etSendMessage)
-        messageLayoutManager = LinearLayoutManager(context)
-
-        sendMessageButton.setOnClickListener {
-            sendMessage()
+        val values = arguments
+        if (values != null) {
+            friendID = values!!.getString("friendName").toString()
+            chatroomid = values.getString("documentID").toString()
+            initialization()
+            recyclerViewBuild()
+            fetchMessageID()
+            fetchingMessages()
+        }
+        val contactBundle = arguments
+        if (contactBundle != null) {
+            friendID = values!!.getString("friendUID").toString()
+            chatroomid = values.getString("chatroomID").toString()
+            fetchChatRoomUID()
+            initialization()
+            recyclerViewBuild()
+            fetchMessageID()
+            fetchingMessages()
         }
         return view
+
+    }
+    private fun fetchChatRoomUID(){
+        fstore.collection("chats").whereEqualTo("chatroomid",chatroomid).get().addOnSuccessListener { query ->
+            if (!query.isEmpty){
+                chatroomUID = query.documents[0].id
+            }
+        }
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    private fun fetchingMessages() {
+        register1 = fstore.collection("chats").document(chatroomid)
+            .collection("message")
+            .orderBy("id", Query.Direction.ASCENDING)
+            .addSnapshotListener { chatSnapshot, exception ->
+                if (exception != null) {
+                    Log.d("", "")
+                } else {
+                    if (!chatSnapshot?.isEmpty!!) {
+                        val listChat = chatSnapshot.documents
+                        for (chat in listChat) {
+                            val chatobj = MessageModel(
+                                chat.getString("sender").toString(),
+                                chat.getString("message").toString(),
+                                chat.getString("timeStamp").toString()
+                            )
+                            messageInfo.add(chatobj)
+                        }
+                        messageRecyclerView.scrollToPosition(chatSnapshot.size() - 1)
+                        messageAdapter.notifyDataSetChanged()
+                    }
+                }
+            }
+    }
+
+    private fun fetchMessageID() {
+        db = fstore.collection("chats").document(chatroomid).collection("count").document("chatid")
+        sendMessageButton.setOnClickListener {
+            register = db.addSnapshotListener { value, error ->
+                if (error != null) {
+                    Log.d("", "")
+                } else {
+                    chatID = value?.getString("chatid").toString()
+                    sendMessage()
+                }
+            }
+        }
+    }
+
+    private fun initialization() {
+        fstore = FirebaseFirestore.getInstance()
+        fauth = FirebaseAuth.getInstance()
+        userid = fauth.currentUser?.uid.toString()
+        messageLayoutManager = LinearLayoutManager(context)
+        db = fstore.collection("chats").document(chatroomid).collection("message").document()
+    }
+
+    private fun recyclerViewBuild() {
+        messageAdapter = MessageAdapter(context as Activity,messageInfo)
+        messageRecyclerView.adapter = messageAdapter
+        messageRecyclerView.layoutManager = messageLayoutManager
     }
 
     private fun sendMessage() {
+        register!!.remove()
         val message = sendMessageEditText.text.toString().trim()
         if (TextUtils.isEmpty(message)){
             sendMessageEditText.error = "Enter some Message to Send"
@@ -105,9 +152,9 @@ class Messaging : Fragment() {
             val timeStamp = "$hour:$minute"
             val messageObject = mutableMapOf<String,Any>().also{
                 it["message"] = message
-                it["messageId"] = 1
+                it["messageId"] = chatID
                 it["messageSender"] = userid
-                //it["messageReceiver"] = ""
+                it["messageReceiver"] = friendID
                 it["time"] = timeStamp
            }
             db.set(messageObject).addOnCanceledListener {

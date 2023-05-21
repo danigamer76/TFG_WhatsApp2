@@ -10,8 +10,8 @@ import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.example.tfg_whatsapp2.databinding.ActivityMainBinding
 import com.example.tfg_whatsapp2.fragmentsMain.Chats
-import com.example.tfg_whatsapp2.fragmentsMain.Estados
-import com.example.tfg_whatsapp2.fragmentsMain.Llamadas
+import com.example.tfg_whatsapp2.fragmentsMain.Status
+import com.example.tfg_whatsapp2.fragmentsMain.Calls
 import com.google.android.material.tabs.TabLayoutMediator
 import com.google.firebase.auth.FirebaseAuth
 
@@ -38,7 +38,7 @@ class MainActivity : AppCompatActivity() {
     private fun setListeners() {
         binding.btContacts.setOnClickListener {
             val intent = Intent(this,MenuActivity::class.java)
-            intent.putExtra("OptionName", "contacts")
+            intent.putExtra("OptionName", "friends")
             startActivity(intent)
         }
     }
@@ -65,8 +65,8 @@ class MainActivity : AppCompatActivity() {
         override fun createFragment(position: Int): Fragment {
             return when(position){
                 0 -> Chats()
-                1 -> Estados()
-                2 -> Llamadas()
+                1 -> Status()
+                2 -> Calls()
                 else -> Chats()
             }
         }
@@ -74,30 +74,35 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.menu_options,menu)
+        menuInflater.inflate(R.menu.menu,menu)
         return super.onCreateOptionsMenu(menu)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when(item.itemId){
 
-            R.id.perfil -> {
+            R.id.profile -> {
                 val intent = Intent(this, MenuActivity::class.java)
                 intent.putExtra("OptionName","profile")
                 startActivity(intent)
             }
 
-            R.id.sobreNosotros -> {
+            R.id.about -> {
                 val intent = Intent(this, MenuActivity::class.java)
                 intent.putExtra("OptionName","about")
                 startActivity(intent)
             }
 
-            R.id.cerrarSesion -> {
+            R.id.logout -> {
                 auth.signOut()
                 val intent = Intent(this, AuthenticationActivity::class.java)
                 startActivity(intent)
                 finish()
+            }
+            R.id.searchContacts -> {
+                val intent = Intent(this, MenuActivity::class.java)
+                intent.putExtra("OptionName","search")
+                startActivity(intent)
             }
         }
         return super.onOptionsItemSelected(item)

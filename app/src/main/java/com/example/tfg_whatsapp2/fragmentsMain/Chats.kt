@@ -49,7 +49,9 @@ class Chats : Fragment() {
                     chatsInfo.clear()
                     val list = snapshot.documents
                     for (doc in list){
-                        fbStore.collection("chats").document(doc.id).collection("message").orderBy("id",Query.Direction.DESCENDING).addSnapshotListener{messageSnapshot,exception ->
+                        val friendsID = doc.id
+                        val chatRoomID = doc.getString("chatRoomID")
+                        fbStore.collection("chats").document(friendsID).collection("message").orderBy("id",Query.Direction.DESCENDING).addSnapshotListener{messageSnapshot,exception ->
                             if (exception!=null){
                                 Log.d("error","Some Error Ocurred")
                             }else{
@@ -58,11 +60,10 @@ class Chats : Fragment() {
                                     val id = messageSnapshot[0]
                                     val message = id.get("message").toString()
                                     val reciver = id.get("reciver").toString()
-                                    val obj = ChatModel(reciver, message, id.getString("").toString())
+                                    val obj = ChatModel(reciver, message, id.getString("").toString(),chatRoomID.toString())
                                     chatsInfo.add(obj)
                                 }
                             }
-
                         }
                         chatsAdapter = ChatsAdapter(context as Activity,chatsInfo)
                         chatsRecyclerView.adapter = chatsAdapter

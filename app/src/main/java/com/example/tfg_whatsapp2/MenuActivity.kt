@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.tfg_whatsapp2.Adapter.Search.SearchAdapter
 import com.example.tfg_whatsapp2.databinding.ActivityMenuBinding
 import com.example.tfg_whatsapp2.fragmentsMenu.About
+import com.example.tfg_whatsapp2.fragmentsMenu.Contacts
 import com.example.tfg_whatsapp2.fragmentsMenu.Profile
 import com.example.tfg_whatsapp2.modelo.UserModel
 import com.google.firebase.auth.FirebaseAuth
@@ -55,15 +56,43 @@ class MenuActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
                         .commit()
                     binding.toolbarMenu.title = "Sobre Nosotros"
                 }
-                "contacts" -> {
+                "search" -> {
                     searchLayoutManager = LinearLayoutManager(this)
                     binding.recyclerViewSearch.visibility = View.VISIBLE
-                    binding.toolbarMenu.title = "Contactos"
+                    binding.toolbarMenu.title = "Search Users"
                     setSupportActionBar(binding.toolbarMenu)
                     searchRecycler.addItemDecoration(
                         DividerItemDecoration(
                             searchRecycler.context,
                             (searchLayoutManager as LinearLayoutManager).orientation))
+                }
+                "friends"->{
+                    binding.frameLayoutMenu.visibility = View.VISIBLE
+                    supportFragmentManager.beginTransaction().replace(R.id.frameLayoutMenu, Contacts())
+                        .commit()
+                    binding.toolbarMenu.title = "FriendList"
+                }
+                "chatMessaging"-> {
+                    binding.frameLayoutMenu.visibility = View.VISIBLE
+                    binding.toolbarMenu.title = intent.getStringExtra("recieverName")
+                    val fragmentName = Messaging()
+                    val transaction = supportFragmentManager.beginTransaction()
+                    val bundle = Bundle()
+                    bundle.putString("documentID",intent.getStringExtra("chatroom"))
+                    bundle.putString("friendName",intent.getStringExtra("receiverName"))
+                    fragmentName.arguments = bundle
+                    transaction.replace(R.id.frameLayoutMenu,fragmentName).commit()
+                }
+                "contactsMessaging"-> {
+                    binding.frameLayoutMenu.visibility = View.VISIBLE
+                    binding.toolbarMenu.title = intent.getStringExtra("friendName")
+                    val fragmentName = Messaging()
+                    val transaction = supportFragmentManager.beginTransaction()
+                    val contactBundle = Bundle()
+                    contactBundle.putString("chatRoomID",intent.getStringExtra("chatroomID"))
+                    contactBundle.putString("friendUID",intent.getStringExtra("friendUID"))
+                    fragmentName.arguments = contactBundle
+                    transaction.replace(R.id.frameLayoutMenu,fragmentName).commit()
                 }
             }
         }
@@ -121,7 +150,8 @@ class MenuActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
                                 doc.getString("userName").toString(),
                                 doc.getString("userEmail").toString(),
                                 doc.getString("userStatus").toString(),
-                                doc.getString("userProfilePhoto").toString()
+                                doc.getString("userProfilePhoto").toString(),
+                                "0"
                             )
                             searchInfo.add(contact)
                             searchAdapter = SearchAdapter(this, searchInfo)

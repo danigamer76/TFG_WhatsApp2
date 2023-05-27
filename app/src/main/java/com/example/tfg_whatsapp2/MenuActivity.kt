@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.Menu
 import android.view.View
 import android.view.WindowManager
+import android.widget.FrameLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -15,91 +16,93 @@ import com.example.tfg_whatsapp2.databinding.ActivityMenuBinding
 import com.example.tfg_whatsapp2.fragmentsMenu.About
 import com.example.tfg_whatsapp2.fragmentsMenu.Contacts
 import com.example.tfg_whatsapp2.fragmentsMenu.Profile
-import com.example.tfg_whatsapp2.modelo.UserModel
+import com.example.tfg_whatsapp2.modelo.User
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 
 class MenuActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
 
     private lateinit var binding: ActivityMenuBinding
-    private lateinit var optionName: String
-    private lateinit var queryTerm: String
-
-    private lateinit var searchRecycler: RecyclerView
-    private lateinit var searchLayoutManager: RecyclerView.LayoutManager
-    private lateinit var searchAdapter: SearchAdapter
-
-    private val register : ListenerRegistration?=null
-
-    private val searchInfo = arrayListOf<UserModel>()
+    private lateinit var toolbarMenu         : androidx.appcompat.widget.Toolbar
+    private lateinit var frameLayout         : FrameLayout
+    private lateinit var optionValue         : String
+    private lateinit var queryTerm           : String
+    private lateinit var searchRecyclerView  : RecyclerView
+    private lateinit var searchLayoutManager : RecyclerView.LayoutManager
+    private lateinit var searchAdapter       : SearchAdapter
+    private val searchInfo = arrayListOf<User>()
+    private var register : ListenerRegistration? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMenuBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-        searchRecycler = binding.recyclerViewSearch
+        setContentView(R.layout.activity_menu)
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        toolbarMenu = findViewById(R.id.toolbarMenu)
+        frameLayout = findViewById(R.id.frameLayout)
+
         if (intent != null) {
-            optionName = intent.getStringExtra("OptionName").toString()
-            when (optionName) {
+            optionValue = intent.getStringExtra("OptionName").toString()
+            when (optionValue) {
                 "profile" -> {
-                    binding.frameLayoutMenu.visibility = View.VISIBLE
-                    supportFragmentManager.beginTransaction()
-                        .replace(R.id.frameLayoutMenu, Profile()).commit()
-                    binding.toolbarMenu.title = "Perfil"
+                    frameLayout.visibility = View.VISIBLE
+                    supportFragmentManager.beginTransaction().replace(R.id.frameLayout, Profile())
+                        .commit()
+                    toolbarMenu.title = "Profile"
                 }
                 "about" -> {
-                    binding.frameLayoutMenu.visibility = View.VISIBLE
-                    supportFragmentManager.beginTransaction().replace(R.id.frameLayoutMenu, About())
+                    frameLayout.visibility = View.VISIBLE
+                    supportFragmentManager.beginTransaction().replace(R.id.frameLayout, About())
                         .commit()
-                    binding.toolbarMenu.title = "Sobre Nosotros"
+                    toolbarMenu.title = "About Us"
                 }
                 "search" -> {
+                    searchRecyclerView = findViewById(R.id.RecyclerViewSearch)
                     searchLayoutManager = LinearLayoutManager(this)
-                    binding.recyclerViewSearch.visibility = View.VISIBLE
-                    binding.toolbarMenu.title = "Search Users"
-                    setSupportActionBar(binding.toolbarMenu)
-                    searchRecycler.addItemDecoration(
+                    searchRecyclerView.visibility = View.VISIBLE
+                    toolbarMenu.title = "Search Users"
+                    setSupportActionBar(toolbarMenu)
+                    searchRecyclerView.addItemDecoration(
                         DividerItemDecoration(
-                            searchRecycler.context,
-                            (searchLayoutManager as LinearLayoutManager).orientation))
+                            searchRecyclerView.context,
+                            (searchLayoutManager as LinearLayoutManager).orientation
+                        )
+                    )
                 }
                 "friends"->{
-                    binding.frameLayoutMenu.visibility = View.VISIBLE
-                    supportFragmentManager.beginTransaction().replace(R.id.frameLayoutMenu, Contacts())
+                    frameLayout.visibility = View.VISIBLE
+                    supportFragmentManager.beginTransaction().replace(R.id.frameLayout, Contacts())
                         .commit()
-                    binding.toolbarMenu.title = "FriendList"
+                    toolbarMenu.title = "FriendsList"
                 }
-                "chatMessaging"-> {
-                    binding.frameLayoutMenu.visibility = View.VISIBLE
-                    binding.toolbarMenu.title = intent.getStringExtra("recieverName")
+                "chatMessaging" -> {
+                    frameLayout.visibility = View.VISIBLE
+                    toolbarMenu.title = intent.getStringExtra("receiverName")
                     val fragmentName = Messaging()
                     val transaction = supportFragmentManager.beginTransaction()
                     val bundle = Bundle()
                     bundle.putString("documentID",intent.getStringExtra("chatroom"))
                     bundle.putString("friendName",intent.getStringExtra("receiverName"))
                     fragmentName.arguments = bundle
-                    transaction.replace(R.id.frameLayoutMenu,fragmentName).commit()
+                    transaction.replace(R.id.frameLayout,fragmentName).commit()
                 }
-                "contactsMessaging"-> {
-                    binding.frameLayoutMenu.visibility = View.VISIBLE
-                    binding.toolbarMenu.title = intent.getStringExtra("friendName")
+                "contactMessaging"->{
+                    frameLayout.visibility = View.VISIBLE
+                    toolbarMenu.title = intent.getStringExtra("friendName")
                     val fragmentName = Messaging()
                     val transaction = supportFragmentManager.beginTransaction()
                     val contactBundle = Bundle()
-                    contactBundle.putString("chatRoomID",intent.getStringExtra("chatroomID"))
                     contactBundle.putString("friendUID",intent.getStringExtra("friendUID"))
+                    contactBundle.putString("chatRoomID",intent.getStringExtra("chatroomID"))
                     fragmentName.arguments = contactBundle
-                    transaction.replace(R.id.frameLayoutMenu,fragmentName).commit()
+                    transaction.replace(R.id.frameLayout,fragmentName).commit()
                 }
             }
         }
     }
-
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.search, menu)
+        menuInflater.inflate(R.menu.search,menu)
         val searchView = menu?.findItem(R.id.search)?.actionView as SearchView
         searchView.isSubmitButtonEnabled = true
         searchView.setOnQueryTextListener(this)
@@ -107,61 +110,65 @@ class MenuActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
     }
 
     override fun onQueryTextSubmit(query: String?): Boolean {
-        if (query != null) {
+        if(query!=null)
+        {
             queryTerm = query
-            if (queryTerm.isNotEmpty()) {
+            if(queryTerm.isNotEmpty())
+            {
                 searchUsers()
             }
         }
         return true
     }
-
     override fun onQueryTextChange(newText: String?): Boolean {
-        if (newText != null) {
+        if(newText!=null)
+        {
             queryTerm = newText
-            if (queryTerm.isNotEmpty()) {
+            if(queryTerm.isNotEmpty())
+            {
                 searchUsers()
             }
         }
         return true
     }
-
     private fun searchUsers() {
-        //Toast.makeText(this,"Clicked on $queryTerm", Toast.LENGTH_SHORT).show()
-        searchInfo.clear()
-        FirebaseFirestore.getInstance()
-            .collection("users")
-            .whereGreaterThanOrEqualTo("userName", queryTerm)
-            .whereLessThan("userName", queryTerm + "\uF7FF") // Este es un valor que garantiza que no se incluya la siguiente letra
-            .orderBy("userName")
-            .addSnapshotListener { snapshot, exception ->
-                if (exception != null) {
-                    Log.e("onError", "Some Error Occured")
-                } else {
-                    if (!snapshot?.isEmpty!!) {
+        register = FirebaseFirestore.getInstance()
+            .collection("users").orderBy("userName").startAt(queryTerm).limit(5)
+            .addSnapshotListener{ snapshot,exception->
+                if(exception!=null)
+                {
+                    Log.e("onError","Some Error Occurred")
+                }
+                else
+                {
+                    if(!snapshot?.isEmpty!!)
+                    {
+                        searchInfo.clear()
                         val searchList = snapshot.documents
-                        for (doc in searchList) {
 
-                            if (FirebaseAuth.getInstance().currentUser!!.uid == doc.id){
-                                Log.d("onSuccess", "User Running the app")
-                            }else{
-                            val contact = UserModel(
-                                doc.id,
-                                doc.getString("userName").toString(),
-                                doc.getString("userEmail").toString(),
-                                doc.getString("userStatus").toString(),
-                                doc.getString("userProfilePhoto").toString(),
-                                "0"
-                            )
-                            searchInfo.add(contact)
-                            searchAdapter = SearchAdapter(this, searchInfo)
-                            searchRecycler.adapter = searchAdapter
-                            searchRecycler.layoutManager = searchLayoutManager
+                        for(doc in searchList)
+                        {
+                            if(FirebaseAuth.getInstance().currentUser!!.uid==doc.id)
+                            {
+                                Log.d("onSuccess","User Running The App")
+                            }
+                            else {
+                                val obj = User(
+                                    doc.id,
+                                    doc.getString("userName").toString(),
+                                    doc.getString("userEmail").toString(),
+                                    doc.getString("userStatus").toString(),
+                                    doc.getString("userProfilePhoto").toString(),
+                                    "0"
+                                )
+                                searchInfo.add(obj)
+                                searchAdapter = SearchAdapter(searchInfo)
+                                searchRecyclerView.adapter = searchAdapter
+                                searchRecyclerView.layoutManager = searchLayoutManager
                             }
                         }
                     }
                 }
-
             }
     }
 

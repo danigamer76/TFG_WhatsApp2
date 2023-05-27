@@ -5,21 +5,23 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.tfg_whatsapp2.R
-import com.example.tfg_whatsapp2.modelo.ChatModel
-import com.example.tfg_whatsapp2.modelo.UserModel
+import com.example.tfg_whatsapp2.modelo.ChatModal
 
-class ChatsAdapter(
-    val context: Context,
-    val chatList:ArrayList<ChatModel>):RecyclerView.Adapter<ChatsViewHolder>() {
+class ChatsAdapter(val context:Context,private val chatList: ArrayList<ChatModal>) :
+    RecyclerView.Adapter<ChatsViewHolder>() {
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ChatsViewHolder {
-        val v = LayoutInflater.from(parent.context).inflate(R.layout.recycleview_chat,parent,false)
-        return ChatsViewHolder(v)
+        val view =
+            LayoutInflater.from(parent.context).inflate(R.layout.chat_view, parent, false)
+        return ChatsViewHolder(view,context)
     }
 
     override fun onBindViewHolder(holder: ChatsViewHolder, position: Int) {
-        holder.render(chatList[position])
-
+        val list = chatList[position]
+        holder.bind(list)
     }
 
-    override fun getItemCount() = chatList.size
+    override fun getItemCount(): Int {
+        return chatList.size
+    }
 }

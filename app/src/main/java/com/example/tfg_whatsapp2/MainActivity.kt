@@ -8,100 +8,91 @@ import android.view.MenuItem
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
+import androidx.viewpager2.widget.ViewPager2
 import com.example.tfg_whatsapp2.databinding.ActivityMainBinding
-import com.example.tfg_whatsapp2.fragmentsMain.Chats
 import com.example.tfg_whatsapp2.fragmentsMain.Status
 import com.example.tfg_whatsapp2.fragmentsMain.Calls
+import com.example.tfg_whatsapp2.fragmentsMain.Chats
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.google.firebase.auth.FirebaseAuth
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
+
+    private lateinit var viewPager2: ViewPager2
+    private lateinit var tabLayout: TabLayout
+    private lateinit var toolbar: androidx.appcompat.widget.Toolbar
     private lateinit var appPagerAdapter: AppPagerAdapter
     private lateinit var auth: FirebaseAuth
-
-    private val titulos = arrayListOf("Chats", "Estados", "Llamadas")
+    private lateinit var showContacts: FloatingActionButton
+    private val titles = arrayListOf("Chats", "Status", "Calls")
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-
+        setContentView(R.layout.activity_main)
+        toolbar = findViewById(R.id.toolbarMain)
+        tabLayout = findViewById(R.id.tabLayoutMain)
+        viewPager2 = findViewById(R.id.viewPager2Main)
+        showContacts = findViewById(R.id.btContacts)
         auth = FirebaseAuth.getInstance()
-        setTittle()
-        setBar()
-        setListeners()
-    }
-
-    private fun setListeners() {
-        binding.btContacts.setOnClickListener {
-            val intent = Intent(this,MenuActivity::class.java)
+        toolbar.title = "WhatsappClone"
+        setSupportActionBar(toolbar)
+        appPagerAdapter = AppPagerAdapter(this)
+        viewPager2.adapter = appPagerAdapter
+        TabLayoutMediator(tabLayout, viewPager2) { tab, position ->
+            tab.text = titles[position]
+        }.attach()
+        showContacts.setOnClickListener {
+            val intent = Intent(this, MenuActivity::class.java)
             intent.putExtra("OptionName", "friends")
             startActivity(intent)
         }
     }
-
-    //Configuracion de la TabLayout
-    private fun setBar() {
-        appPagerAdapter = AppPagerAdapter(this)
-        binding.viewPager2Main.adapter = appPagerAdapter
-        TabLayoutMediator(binding.tabLayoutMain,binding.viewPager2Main){
-                tab,position ->
-            tab.text = titulos[position]
-        }.attach()
-    }
-    //Configuracion de la ToolBar
-    private fun setTittle() {
-        binding.toolbarMain.title = "WhatsApp 2"
-        setSupportActionBar(binding.toolbarMain)    }
-
-    class AppPagerAdapter(fragmentActivity: FragmentActivity): FragmentStateAdapter(fragmentActivity){
+    class AppPagerAdapter(fragmentActivity: FragmentActivity) :
+        FragmentStateAdapter(fragmentActivity) {
         override fun getItemCount(): Int {
             return 3
         }
 
         override fun createFragment(position: Int): Fragment {
-            return when(position){
+            return when (position) {
                 0 -> Chats()
                 1 -> Status()
                 2 -> Calls()
                 else -> Chats()
             }
         }
-
     }
-
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu,menu)
-        return super.onCreateOptionsMenu(menu)
+        return true
     }
-
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when(item.itemId){
-
+        when (item.itemId) {
             R.id.profile -> {
                 val intent = Intent(this, MenuActivity::class.java)
-                intent.putExtra("OptionName","profile")
+                intent.putExtra("OptionName", "profile")
                 startActivity(intent)
             }
-
             R.id.about -> {
                 val intent = Intent(this, MenuActivity::class.java)
-                intent.putExtra("OptionName","about")
+                intent.putExtra("OptionName", "about")
                 startActivity(intent)
             }
-
             R.id.logout -> {
                 auth.signOut()
                 val intent = Intent(this, AuthenticationActivity::class.java)
                 startActivity(intent)
                 finish()
             }
-            R.id.searchContacts -> {
+            R.id.searchContacts->{
                 val intent = Intent(this, MenuActivity::class.java)
-                intent.putExtra("OptionName","search")
+                intent.putExtra("OptionName", "search")
                 startActivity(intent)
             }
         }

@@ -1,24 +1,29 @@
 package com.example.tfg_whatsapp2.Adapter.Search
 
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.tfg_whatsapp2.R
-import com.example.tfg_whatsapp2.modelo.UserModel
+import com.example.tfg_whatsapp2.modelo.User
 
-class SearchAdapter(
-    val context: Context,
-    private val searchList: ArrayList<UserModel>):RecyclerView.Adapter<SearchViewHolder>() {
+class SearchAdapter(private val searchList: ArrayList<User>) :
+    RecyclerView.Adapter<SearchViewHolder>() {
+
+
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SearchViewHolder {
-        val v = LayoutInflater.from(parent.context).inflate(R.layout.recycleview_contacts,parent,false)
-        return SearchViewHolder(v)
+        val contactView = LayoutInflater.from(parent.context)
+            .inflate(R.layout.recyclerview_contacts, parent, false)
+        return SearchViewHolder(contactView)
     }
 
     override fun onBindViewHolder(holder: SearchViewHolder, position: Int) {
-        holder.render(searchList[position])
+        val list = searchList[position]
+        holder.bind(list)
     }
 
-    override fun getItemCount() = searchList.size
+    override fun getItemCount(): Int {
+        return searchList.size
+    }
 
 }

@@ -4,6 +4,8 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.tfg_whatsapp2.R
@@ -41,7 +43,15 @@ class MessageAdapter(val context : Context, private val messageList : ArrayList<
         val list = messageList[position]
         holder.message.text = list.message
         holder.time.text = list.timeStamp
-        holder.id.text = list.messageID
+        //holder.id.text = list.messageID
+
+        // Aplicar animaciones según el tipo de mensaje
+        val animation: Animation = if (holder.itemViewType == left) {
+            AnimationUtils.loadAnimation(context, R.anim.left_anim)
+        } else {
+            AnimationUtils.loadAnimation(context, R.anim.right_anim)
+        }
+        holder.itemView.startAnimation(animation)
     }
 
     override fun getItemCount(): Int {
@@ -51,6 +61,5 @@ class MessageAdapter(val context : Context, private val messageList : ArrayList<
     {
         val message : TextView = view.findViewById(R.id.txtMessage)
         val time    : TextView = view.findViewById(R.id.txtTime)
-        val id      : TextView = view.findViewById(R.id.txtId)
     }
 }

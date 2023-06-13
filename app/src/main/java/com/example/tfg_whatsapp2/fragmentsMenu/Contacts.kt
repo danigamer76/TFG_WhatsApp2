@@ -10,7 +10,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.tfg_whatsapp2.Adapter.Contacts.ContactsAdapter
+import com.example.tfg_whatsapp2.adapter.ContactsAdapter
 import com.example.tfg_whatsapp2.R
 import com.example.tfg_whatsapp2.modelo.User
 import com.google.firebase.auth.FirebaseAuth
@@ -42,35 +42,43 @@ class Contacts : Fragment() {
                 val list = it.documents
                 for (doc in list) {
                     val friendsID = doc.id
-                    val chatRoomID = doc.getString("chatRoomId")
-                    Log.d("chatRoomID", chatRoomID.toString())
-                    fstore.collection("users").document(friendsID).addSnapshotListener { value, error ->
-                        if (error != null) {
-                            Log.d("", "")
-                        }
-                        else
-                        {
-                            val obj = User(
-                                friendsID,
-                                value!!.getString("userName").toString(),
-                                value.getString("userEmail").toString(),
-                                value.getString("userStatus").toString(),
-                                value.getString("userProfilePhoto").toString(),
-                                chatRoomID.toString()
 
-                            )
-                            contactInfo.add(obj)
-                            contactsAdapter = ContactsAdapter(context as Activity, contactInfo)
-                            contactsRecyclerView.adapter = contactsAdapter
-                            contactsRecyclerView.layoutManager = contactLayoutManager
-                            contactsRecyclerView.addItemDecoration(
-                                DividerItemDecoration(
-                                    contactsRecyclerView.context,
-                                    (contactLayoutManager as LinearLayoutManager).orientation
-                                )
-                            )
+                    val users = listOf(userid)
+                    fstore.collection("chats").whereArrayContainsAny("uids", users).get()
+                        .addOnCompleteListener {
+                            if (it.isSuccessful) {
+                                val chatRoomID = it.result.documents[0].id
+                                fstore.collection("users").document(friendsID).addSnapshotListener { value, error ->
+                                    if (error != null) {
+                                        Log.d("", "")
+                                    }
+                                    else
+                                    {
+                                        val obj = User(
+                                            friendsID,
+                                            value!!.getString("userName").toString(),
+                                            value.getString("userEmail").toString(),
+                                            value.getString("userStatus").toString(),
+                                            value.getString("userProfilePhoto").toString(),
+                                            chatRoomID
+                                        )
+                                        contactInfo.add(obj)
+                                        contactsAdapter = ContactsAdapter(context as Activity, contactInfo)
+                                        contactsRecyclerView.adapter = contactsAdapter
+                                        contactsRecyclerView.layoutManager = contactLayoutManager
+                                        contactsRecyclerView.addItemDecoration(
+                                            DividerItemDecoration(
+                                                contactsRecyclerView.context,
+                                                (contactLayoutManager as LinearLayoutManager).orientation
+                                            )
+                                        )
+                                    }
+                                }
+                            } else {
+                                Log.d("ERROR", "Error getting documents: ", it.exception)
+                            }
                         }
-                    }
+
                 }
             }
         }

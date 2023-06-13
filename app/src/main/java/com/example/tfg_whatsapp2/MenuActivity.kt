@@ -11,8 +11,7 @@ import androidx.appcompat.widget.SearchView
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.tfg_whatsapp2.Adapter.Search.SearchAdapter
-import com.example.tfg_whatsapp2.databinding.ActivityMenuBinding
+import com.example.tfg_whatsapp2.adapter.SearchAdapter
 import com.example.tfg_whatsapp2.fragmentsMenu.About
 import com.example.tfg_whatsapp2.fragmentsMenu.Contacts
 import com.example.tfg_whatsapp2.fragmentsMenu.Profile
@@ -22,8 +21,6 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 
 class MenuActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
-
-    private lateinit var binding: ActivityMenuBinding
     private lateinit var toolbarMenu         : androidx.appcompat.widget.Toolbar
     private lateinit var frameLayout         : FrameLayout
     private lateinit var optionValue         : String
@@ -31,12 +28,13 @@ class MenuActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
     private lateinit var searchRecyclerView  : RecyclerView
     private lateinit var searchLayoutManager : RecyclerView.LayoutManager
     private lateinit var searchAdapter       : SearchAdapter
+    private val fstore: FirebaseFirestore = FirebaseFirestore.getInstance()
     private val searchInfo = arrayListOf<User>()
     private var register : ListenerRegistration? = null
+    private var defaultSearchQuery = " "
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityMenuBinding.inflate(layoutInflater)
         setContentView(R.layout.activity_menu)
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         toolbarMenu = findViewById(R.id.toolbarMenu)
@@ -69,6 +67,9 @@ class MenuActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
                             (searchLayoutManager as LinearLayoutManager).orientation
                         )
                     )
+                    // Cargar los contactos predeterminados al iniciar la actividad
+                    queryTerm = defaultSearchQuery
+                    searchUsers()
                 }
                 "friends"->{
                     frameLayout.visibility = View.VISIBLE
@@ -78,7 +79,18 @@ class MenuActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
                 }
                 "chatMessaging" -> {
                     frameLayout.visibility = View.VISIBLE
+
                     toolbarMenu.title = intent.getStringExtra("receiverName")
+                    intent.getStringExtra("receiverName")?.let {
+                        fstore.collection("users").document(it)
+                            .get()
+                            .addOnSuccessListener { Snapshot ->
+                                val username =
+                                    Snapshot.getString("userName")
+                                        .toString()
+                                toolbarMenu.title = username
+                            }
+                    }
                     val fragmentName = Messaging()
                     val transaction = supportFragmentManager.beginTransaction()
                     val bundle = Bundle()
@@ -93,8 +105,8 @@ class MenuActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
                     val fragmentName = Messaging()
                     val transaction = supportFragmentManager.beginTransaction()
                     val contactBundle = Bundle()
-                    contactBundle.putString("friendUID",intent.getStringExtra("friendUID"))
                     contactBundle.putString("chatRoomID",intent.getStringExtra("chatroomID"))
+                    contactBundle.putString("friendUID",intent.getStringExtra("friendUID"))
                     fragmentName.arguments = contactBundle
                     transaction.replace(R.id.frameLayout,fragmentName).commit()
                 }
@@ -162,7 +174,7 @@ class MenuActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
                                     "0"
                                 )
                                 searchInfo.add(obj)
-                                searchAdapter = SearchAdapter(searchInfo)
+                                searchAdapter = SearchAdapter(this, searchInfo)
                                 searchRecyclerView.adapter = searchAdapter
                                 searchRecyclerView.layoutManager = searchLayoutManager
                             }
@@ -171,6 +183,7 @@ class MenuActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
                 }
             }
     }
+
 
     override fun onDestroy() {
         register?.remove()

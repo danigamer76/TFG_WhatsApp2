@@ -3,12 +3,12 @@ package com.example.tfg_whatsapp2.fragmentsAuthentication
 import android.os.Bundle
 import android.text.TextUtils
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ProgressBar
+import androidx.fragment.app.Fragment
 import com.example.tfg_whatsapp2.R
 import com.google.android.material.textfield.TextInputEditText
 import com.google.firebase.auth.FirebaseAuth
@@ -65,10 +65,16 @@ class SignUp : Fragment() {
                 val userinfo = fauth.currentUser?.uid
                 db = fstore.collection("users").document(userinfo.toString())
                 val obj = mutableMapOf<String, String>()
+                //obj["userEmail"] = em
+                //obj["userPassword"] = pass
+                //obj["userStatus"] = ""
+                //obj["userName"] = ""
+                //////////////////////////
                 obj["userEmail"] = em
-                obj["userPassword"] = pass
+                obj["userName"] = em.substringBefore("@")
+                obj["userProfilePhoto"] = "R.drawable.profile_user"
                 obj["userStatus"] = ""
-                obj["userName"] = ""
+
                 db.set(obj).addOnSuccessListener {
                     Log.d("whatHapeen", "What Happen2")
                     Log.d("onSucess", "User Created Successfully")

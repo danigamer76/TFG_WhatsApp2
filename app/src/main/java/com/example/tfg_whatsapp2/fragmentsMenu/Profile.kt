@@ -24,8 +24,6 @@ import com.google.firebase.storage.StorageReference
 import com.squareup.picasso.Picasso
 import de.hdodenhof.circleimageview.CircleImageView
 import java.io.ByteArrayOutputStream
-import kotlin.collections.Map
-import kotlin.collections.mutableMapOf
 import kotlin.collections.set
 
 class Profile : Fragment() {
@@ -40,6 +38,7 @@ class Profile : Fragment() {
     private lateinit var editName: TextInputEditText
     private lateinit var editEmail: TextInputEditText
     private lateinit var editStatus: TextInputEditText
+    private lateinit var editProfile: String
     private lateinit var profileUpdate: Button
     private lateinit var profileSave: Button
     private lateinit var progressBar: ProgressBar
@@ -74,10 +73,13 @@ class Profile : Fragment() {
         editName = view.findViewById(R.id.etProfileName)
         editEmail = view.findViewById(R.id.etProfileEmail)
         editStatus = view.findViewById(R.id.etProfileStatus)
+        editProfile = ""
         profileUpdate = view.findViewById(R.id.btUpdateProfile)
         profileSave = view.findViewById(R.id.btSaveProfile)
         progressBar = view.findViewById(R.id.profileProgressBar)
         profileUpdate.visibility = View.VISIBLE
+        profilePictureAdd.visibility = View.GONE
+        editEmail.isEnabled = false
         db = fstore.collection("users").document(userid)
         db.addSnapshotListener { value, error ->
             if (error != null) {
@@ -88,6 +90,7 @@ class Profile : Fragment() {
                 profileStatusShow.text = value?.getString("userStatus")
                 Picasso.get().load(value?.getString("userProfilePhoto")).error(R.drawable.profile_user)
                     .into(profilePicture)
+                editProfile = value?.getString("userProfilePhoto").toString()
             }
 
         }
@@ -100,6 +103,7 @@ class Profile : Fragment() {
             profileStatusEdit.visibility = View.VISIBLE
             profileSave.visibility = View.VISIBLE
             profileUpdate.visibility = View.GONE
+            profilePictureAdd.visibility = View.VISIBLE
             editName.text =
                 Editable.Factory.getInstance().newEditable(profileNameShow.text.toString())
             editEmail.text =
@@ -116,10 +120,12 @@ class Profile : Fragment() {
             profileEmailEdit.visibility = View.GONE
             profileStatusEdit.visibility = View.GONE
             profileSave.visibility = View.GONE
+            profilePictureAdd.visibility = View.GONE
             val obj = mutableMapOf<String, String>()
             obj["userName"] = editName.text.toString()
             obj["userEmail"] = editEmail.text.toString()
             obj["userStatus"] = editStatus.text.toString()
+            obj["userProfilePhoto"] = editProfile
             db.set(obj).addOnSuccessListener {
                 Log.d("Success", "Data Successfully Updated")
             }
@@ -141,6 +147,7 @@ class Profile : Fragment() {
         storageReference.putBytes(image).addOnSuccessListener {
             storageReference.downloadUrl.addOnSuccessListener {
                 val obj = mutableMapOf<String, String>()
+                editProfile = it.toString()
                 obj["userProfilePhoto"] = it.toString()
                 db.update(obj as Map<String, Any>).addOnSuccessListener {
                     Log.d("onSucces", "ProfilePictureUploaded")

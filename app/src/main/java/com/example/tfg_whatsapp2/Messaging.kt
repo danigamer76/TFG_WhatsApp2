@@ -1,24 +1,23 @@
 package com.example.tfg_whatsapp2
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.os.Bundle
 import android.text.TextUtils
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.tfg_whatsapp2.Adapter.Message.MessageAdapter
+import com.example.tfg_whatsapp2.adapter.MessageAdapter
 import com.example.tfg_whatsapp2.modelo.MessageModal
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.DocumentReference
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.ListenerRegistration
-import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.*
 import java.util.*
 
 class Messaging : Fragment() {
@@ -50,33 +49,37 @@ class Messaging : Fragment() {
         messageRecyclerView = view.findViewById(R.id.messageRecyclerView)
         sendMessageButton = view.findViewById(R.id.btSendMessage)
         sendMessageEditText = view.findViewById(R.id.etSendMessage)
-        fstore = FirebaseFirestore.getInstance()
-        fauth = FirebaseAuth.getInstance()
-        userid = fauth.currentUser?.uid.toString()
-        messageLayoutManager = LinearLayoutManager(context)
+        friendID = ""
+        chatroomid = ""
         val values = arguments
-        if(values!=null)
-        {
-            friendID = values.getString("friendName").toString()
-            chatroomid = values.getString("documentID").toString()
-            initialization(chatroomid)
+        if (values != null) {
+            val newFriendID = values.getString("friendName").toString()
+            val newChatroomID = values.getString("documentID").toString()
+            if (newFriendID != "null" && !newFriendID.isEmpty()) {
+                friendID = newFriendID
+                chatroomid = newChatroomID
+            } else if (friendID.isEmpty()) {
+                val newFriendID = values.getString("friendUID").toString()
+                val newChatroomID = values.getString("chatRoomID").toString()
+                if (!newFriendID.isEmpty()) {
+                    friendID = newFriendID
+                    chatroomid = newChatroomID
+                }
+            }
         }
-        val contactBundle = arguments
-        if (contactBundle != null) {
-            friendID = values!!.getString("friendUID").toString()
-            chatroomid = values.getString("chatRoomID").toString()
-            Log.d("logContactbundle", friendID)
-            Log.d("logContactbundle", chatroomid)
-            fetchChatRoomUID()
-        }
+        Log.d("logContactbundle", friendID)
+        Log.d("logContactbundle", chatroomid)
+        initialization(chatroomid)
+
         sendMessageButton.setOnClickListener{
+            fetchChatRoomUID()
             fetchMessageID()
         }
         return view
     }
     private fun fetchChatRoomUID()
     {
-        fstore.collection("chats").whereEqualTo("chatroomid",chatroomid).get().addOnSuccessListener { query->
+        fstore.collection("chats").whereEqualTo(FieldPath.documentId(), chatroomid).get().addOnSuccessListener { query->
             if(!query.isEmpty)
             {
                 chatroomUID = query.documents[0].id
@@ -90,58 +93,56 @@ class Messaging : Fragment() {
     private fun fetchingMessages(idMessages:String) {
         register1 = fstore.collection("chats").document(idMessages)
             .collection("message")
-            .orderBy("messageId",Query.Direction.ASCENDING).addSnapshotListener{chatSnapshot,exception->
-                if(exception!=null)
-                {
-                    Log.d("","")
-                }
-                else
-                {
+            .orderBy("messageId", Query.Direction.ASCENDING)
+            .addSnapshotListener { chatSnapshot, exception ->
+                if (exception != null) {
+                    Log.d("", "")
+                } else {
                     messageInfo.clear()
-                    if(!chatSnapshot?.isEmpty!!)
-                    {
+                    if (!chatSnapshot?.isEmpty!!) {
                         val listChat = chatSnapshot.documents
-                        for(chat in listChat)
-                        {
+                        val sortedList = listChat.sortedBy { it.getString("messageId")?.toIntOrNull() }
+                        for (chat in sortedList) {
                             val chatobj = MessageModal(
                                 chat.getString("messageSender").toString(),
                                 chat.getString("message").toString(),
-                                chat.getString("messageTime").toString()
+                                chat.getString("messageTime").toString(),
+                                chat.getString("messageId").toString()
                             )
                             messageInfo.add(chatobj)
                         }
-                        messageRecyclerView.scrollToPosition(messageInfo.size -1)
+                        messageRecyclerView.scrollToPosition(messageInfo.size - 1)
                         messageAdapter.notifyDataSetChanged()
                     }
                 }
             }
     }
 
+
     private fun fetchMessageID() {
-        db = fstore.collection("chats").document(chatroomUID).collection("count").document("chatid")
-        sendMessageButton.setOnClickListener {
-            register = db.addSnapshotListener{value,error->
-                if(error!=null)
-                {
-                    Log.d("","")
-                }
-                else
-                {
-                    chatID = value?.getString("chatid").toString()
-                    sendMessage()
-                }
+        db = fstore.collection("chats").document(chatroomid).collection("count").document("chatid")
+        db.get()
+            .addOnSuccessListener { documentSnapshot ->
+                chatID = documentSnapshot.getString("chatid") ?: "0"
+                sendMessage()
             }
-        }
+            .addOnFailureListener { exception ->
+                Log.d("fetchMessageID", "Error fetching chatid: $exception")
+            }
     }
 
-    private fun initialization(id : String) {
 
+    private fun initialization(id : String) {
+        fstore = FirebaseFirestore.getInstance()
+        fauth = FirebaseAuth.getInstance()
+        userid = fauth.currentUser?.uid.toString()
+        messageLayoutManager = LinearLayoutManager(context)
         recyclerViewBuild(id)
 
     }
 
     private fun recyclerViewBuild(id:String) {
-        messageAdapter = MessageAdapter(messageInfo)
+        messageAdapter = MessageAdapter(context as Activity, messageInfo)
         messageRecyclerView.adapter = messageAdapter
         messageRecyclerView.layoutManager = messageLayoutManager
         fetchingMessages(id)
@@ -149,7 +150,7 @@ class Messaging : Fragment() {
     }
 
     private fun sendMessage() {
-        register!!.remove()
+        register?.remove()
         val message = sendMessageEditText.text.toString()
         if (TextUtils.isEmpty(message)) {
             sendMessageEditText.error = "Enter some Message to Send"
@@ -157,29 +158,45 @@ class Messaging : Fragment() {
             val c = Calendar.getInstance()
             val hour = c.get(Calendar.HOUR_OF_DAY)
             val minute = c.get(Calendar.MINUTE)
-            val timeStamp = "$hour:$minute"
-            val messageObject = mutableMapOf<String, Any>().also {
-                it["message"] = message
-                it["messageId"] = chatID
-                it["messageSender"] = userid
-                it["messageReceiver"] = friendID
-                it["messageTime"] = timeStamp
-            }
+            val timeStamp = String.format("%d:%02d", hour, minute)
+            val messageObject = mapOf(
+                "message" to message,
+                "messageId" to chatID,
+                "messageSender" to userid,
+                "messageReceiver" to friendID,
+                "messageTime" to timeStamp
+            )
             db1 = fstore.collection("chats").document(chatroomUID).collection("message").document()
-            db1.set(messageObject).addOnSuccessListener {
-                Log.d("onSuccess", "Successfully Send Message")
-            }
-            val countid = mutableMapOf<String,String>()
-            val chatIDInt = chatID.toIntOrNull() ?: 0  // Asignar 0 si chatID es null o no se puede convertir a Int
-            countid["chatid"] = (chatIDInt + 1).toString()
-            db.set(countid).addOnSuccessListener {
-                Log.d("onSuccess", "Successfully upDATED count messages")
-            }
+            db1.set(messageObject)
+                .addOnSuccessListener {
+                    Log.d("onSuccess", "Successfully Send Message")
+                }
+                .addOnFailureListener { exception ->
+                    Log.d("sendMessage", "Error sending message: $exception")
+                }
+            db.update("chatid", (chatID.toInt() + 1).toString())
+                .addOnSuccessListener {
+                    Log.d("onSuccess", "Successfully updated count messages")
+                }
+                .addOnFailureListener { exception ->
+                    Log.d("sendMessage", "Error updating chatid: $exception")
+                }
         }
+        sendMessageEditText.text.clear() // Borrar el contenido del campo de texto
+        hideKeyboard() // Cerrar el teclado
     }
 
+
+    private fun hideKeyboard() {
+        val imm = context?.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(view?.windowToken, 0)
+    }
+
+
     override fun onDestroy() {
-        register1!!.remove()
+        register1?.remove()
+        register?.remove()
         super.onDestroy()
     }
+
 }

@@ -1,8 +1,8 @@
 <resources>
-    <string name="app_name">TFG_WhatsApp2</string>
+    <string name="app_name">Whatsapp-Clone</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="logo_of_the_app">logo_of_the_app</string>
+    <string name="logo_of_the_app">Logo of the App</string>
     <string name="enter_your_email">Enter Your Email:</string>
     <string name="enter_email">Enter Email:</string>
     <string name="enter_your_password">Enter Your Password :</string>
@@ -29,10 +29,11 @@
     <string name="search">Search</string>
     <string name="friends">Friends</string>
     <string name="add_friend">Add Friend</string>
-    <string name="profile_menu">Profile</string>
-    <string name="about">About</string>
-    <string name="logout_menu">Logout</string>
-    <string name="search_contacts_menu">Search Contacts</string>
-    <string name="todo">TODO</string>
+    <string name="profileMenu">Profile</string>
+    <string name="aboutMenu">About</string>
+    <string name="logoutMenu">Logout</string>
+    <string name="search_contactsMenu">Search Contacts</string>
+    <string name="about_fragment">About fragment</string>
+    <string name="imgaddbutton">imgAddButton</string>
     <string name="check_contacts">Check Contacts</string>
 </resources>

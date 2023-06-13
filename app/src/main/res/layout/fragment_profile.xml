@@ -24,7 +24,7 @@
         android:layout_gravity="center"
         android:layout_marginTop="-20dp"
         android:layout_marginStart="30dp"
-        android:contentDescription="@string/todo" />
+        android:contentDescription="@string/imgaddbutton" />
     <TextView
         android:id="@+id/txtProfileName"
         android:layout_width="match_parent"
@@ -57,18 +57,18 @@
             android:textColor="@color/mycolor2"
             />
     </com.google.android.material.textfield.TextInputLayout>
+
     <TextView
         android:id="@+id/txtProfileEmail"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textStyle="bold"
-        android:text="@string/email"
-        android:textSize="20sp"
-        android:padding="10dp"
         android:layout_margin="10dp"
+        android:padding="10dp"
+        android:text="@string/email"
         android:textColor="@color/mycolor2"
-        app:drawableLeftCompat = "@drawable/ic_email"
-        />
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:drawableLeftCompat="@drawable/ic_email" />
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/profile_email"
         android:layout_width="match_parent"
@@ -83,13 +83,12 @@
         android:layout_margin="10dp"
         app:startIconTint="@color/mycolor2"
         >
+
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etProfileEmail"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:inputType="textEmailAddress"
-            android:textColor="@color/mycolor2"
-            />
+            android:textColor="@color/mycolor2" />
     </com.google.android.material.textfield.TextInputLayout>
     <TextView
         android:id="@+id/txtProfileStatus"

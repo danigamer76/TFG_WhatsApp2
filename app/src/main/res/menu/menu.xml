@@ -3,18 +3,18 @@
 
     <item
         android:id="@+id/profile"
-        android:title="@string/profile_menu"
+        android:title="@string/profileMenu"
         />
     <item
         android:id="@+id/about"
-        android:title="@string/about"
+        android:title="@string/aboutMenu"
         />
     <item android:id="@+id/logout"
-        android:title="@string/logout_menu"
+        android:title="@string/logoutMenu"
         />
     <item
         android:id="@+id/searchContacts"
-        android:title="@string/search_contacts_menu"
+        android:title="@string/search_contactsMenu"
         />
 
 </menu>

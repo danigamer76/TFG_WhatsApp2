@@ -9,7 +9,7 @@
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
+        android:orientation="vertical"
         android:layout_alignParentEnd="false"
         android:background="@drawable/receiver_bg"
         tools:ignore="UselessParent">
@@ -22,6 +22,8 @@
             android:textSize="18sp"
             android:padding="5dp"
             android:layout_marginStart="25dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginEnd="25dp"
             />
         <TextView
             android:id="@+id/txtTime"
@@ -29,10 +31,26 @@
             android:layout_height="wrap_content"
             android:text="@string/recievermessage"
             android:textStyle="normal"
-            android:textSize="14sp"
+            android:textSize="12sp"
             android:padding="5dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginEnd="10dp"
+            android:layout_gravity="end"
+            android:layout_marginTop="-10dp"
+            android:layout_marginBottom="2dp"
+            android:layout_marginEnd="5dp"
+            />
+        <TextView
+            android:id="@+id/txtId"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/sender_message"
+            android:textStyle="normal"
+            android:textSize="12sp"
+            android:padding="5dp"
+            android:layout_gravity="end"
+            android:layout_marginTop="-10dp"
+            android:layout_marginBottom="2dp"
+            android:layout_marginEnd="20dp"
+
             />
     </LinearLayout>
 </RelativeLayout>

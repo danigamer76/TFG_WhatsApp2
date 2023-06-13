@@ -1,5 +1,3 @@
-package com.example.tfg_whatsapp2.fragmentsAuthentication
-
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
@@ -13,17 +11,17 @@ import android.widget.ImageButton
 import android.widget.RelativeLayout
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
+import androidx.activity.result.contract.ActivityResultContracts
 import com.example.tfg_whatsapp2.R
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
-import com.google.android.material.textfield.TextInputEditText
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.android.material.textfield.TextInputEditText
 
 class Login : Fragment() {
     private lateinit var enterEmail: TextInputEditText
@@ -33,8 +31,7 @@ class Login : Fragment() {
     private lateinit var progress: RelativeLayout
     private lateinit var googleSignInOptions: GoogleSignInOptions
     private lateinit var mGoogleSignInClient: GoogleSignInClient
-    private lateinit var resultLaunch: ActivityResultLauncher<Intent>
-    private val RC_SIGN_IN = 1011
+    private lateinit var resultLauncher: ActivityResultLauncher<Intent>
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -50,7 +47,7 @@ class Login : Fragment() {
             val email = enterEmail.text.toString()
             val password = enterPassword.text.toString()
             if (TextUtils.isEmpty(email)) {
-                enterEmail.error = " Email is Required To Create Account"
+                enterEmail.error = "Email is Required To Create Account"
             } else if (TextUtils.isEmpty(password)) {
                 enterPassword.error = "Password is required to Create Account"
             } else {
@@ -61,17 +58,17 @@ class Login : Fragment() {
         googleButton.setOnClickListener {
             createRequest()
         }
-        resultLaunch =
+        resultLauncher =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
                 if (result.resultCode == Activity.RESULT_OK) {
-                    val launchData = result.data
-                    val task = GoogleSignIn.getSignedInAccountFromIntent(launchData)
+                    val data = result.data
+                    val task = GoogleSignIn.getSignedInAccountFromIntent(data)
                     try {
                         val account = task.getResult(ApiException::class.java)
-                        Log.d("Gmail ID", "firebaseAuthWith Google : $account")
+                        Log.d("Gmail ID", "firebaseAuthWithGoogle: $account")
                         firebaseAuthWithGoogle(account?.idToken)
                     } catch (e: ApiException) {
-                        Log.w("Error", "Google Sign IN Failed", e)
+                        Log.w("Error", "Google Sign In Failed", e)
                     }
                 }
             }
@@ -80,40 +77,43 @@ class Login : Fragment() {
 
     private fun createRequest() {
         googleSignInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken("Your Firebase Web Client ID")
+            .requestIdToken("277735517592-vu93gssi6ggir74o250viooir8bu6hp1.apps.googleusercontent.com")
             .requestEmail()
             .build()
-        mGoogleSignInClient = context.let { GoogleSignIn.getClient(it!!, googleSignInOptions) }
-        resultLaunch.launch(Intent(mGoogleSignInClient.signInIntent))
+        mGoogleSignInClient = context?.let { GoogleSignIn.getClient(it, googleSignInOptions) }!!
+        resultLauncher.launch(mGoogleSignInClient.signInIntent)
     }
 
     private fun firebaseAuthWithGoogle(idToken: String?) {
         val credential = GoogleAuthProvider.getCredential(idToken, null)
         FirebaseAuth.getInstance().signInWithCredential(credential)
-            .addOnCompleteListener {
-                val acct = GoogleSignIn.getLastSignedInAccount(requireContext())
-                if (acct != null) {
-                    val personName = acct.displayName!!
-                    val personEmail = acct.email!!
-                    val personPhoto = acct.photoUrl!!
-                    val objLogin = mutableMapOf<String, String>()
-                    objLogin["userEmail"] = personEmail
-                    objLogin["userProfile"] = personPhoto.toString()
-                    objLogin["userName"] = personName
-                    val userId = FirebaseAuth.getInstance().currentUser?.uid
-                    FirebaseFirestore.getInstance().collection("users").document(userId.toString())
-                        .set(objLogin).addOnSuccessListener {
-                            Log.d("onSuccess", "Successfully Google Login")
-                        }
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val acct = GoogleSignIn.getLastSignedInAccount(requireContext())
+                    if (acct != null) {
+                        val personName = acct.displayName!!
+                        val personEmail = acct.email!!
+                        val personPhoto = acct.photoUrl!!
+                        val objLogin = mutableMapOf<String, String>()
+                        objLogin["userEmail"] = personEmail
+                        objLogin["userProfilePhoto"] = personPhoto.toString()
+                        objLogin["userName"] = personName
+                        objLogin["userStatus"] = ""
+                        val userId = FirebaseAuth.getInstance().currentUser?.uid
+                        FirebaseFirestore.getInstance().collection("users").document(userId.toString())
+                            .set(objLogin).addOnSuccessListener {
+                                Log.d("onSuccess", "Successfully Google Login")
+                            }
+                    }
                 }
             }
     }
 
-    private fun signIn(em: String, pass: String) {
-        FirebaseAuth.getInstance().signInWithEmailAndPassword(em, pass)
+    private fun signIn(email: String, password: String) {
+        FirebaseAuth.getInstance().signInWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    Toast.makeText(context, "LoginSuccessfully", Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, "Login Successfully", Toast.LENGTH_LONG).show()
                 }
             }
     }

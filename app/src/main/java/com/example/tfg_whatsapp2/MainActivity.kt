@@ -1,18 +1,19 @@
 package com.example.tfg_whatsapp2
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.example.tfg_whatsapp2.databinding.ActivityMainBinding
-import com.example.tfg_whatsapp2.fragmentsMain.Status
 import com.example.tfg_whatsapp2.fragmentsMain.Calls
 import com.example.tfg_whatsapp2.fragmentsMain.Chats
+import com.example.tfg_whatsapp2.fragmentsMain.Status
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
@@ -29,6 +30,13 @@ class MainActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
     private lateinit var showContacts: FloatingActionButton
     private val titles = arrayListOf("Chats", "Status", "Calls")
+
+    private val TIME_INTERVAL =
+        2000 // # milliseconds, desired time passed between two back presses.
+
+    private var mBackPressed: Long = 0
+
+
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -97,5 +105,16 @@ class MainActivity : AppCompatActivity() {
             }
         }
         return super.onOptionsItemSelected(item)
+    }
+    @Deprecated("Deprecated in Java")
+    override fun onBackPressed() {
+        if (mBackPressed + TIME_INTERVAL > System.currentTimeMillis()) {
+            super.onBackPressed()
+            finishAffinity()
+        } else {
+            Toast.makeText(baseContext, "Tap back button in order to exit", Toast.LENGTH_SHORT)
+                .show()
+        }
+        mBackPressed = System.currentTimeMillis()
     }
 }

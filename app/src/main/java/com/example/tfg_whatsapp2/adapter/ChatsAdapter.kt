@@ -29,7 +29,9 @@ class ChatsAdapter(val context: Context, private val chatList: ArrayList<ChatMod
         val message: TextView = view.findViewById(R.id.txtMessage)
         val image: ImageView = view.findViewById(R.id.imgChatImage)
         val content: CardView = view.findViewById(R.id.chatContent)
-        val progressBar: ProgressBar = view.findViewById(R.id.progressBar)
+        val animation: Animation = AnimationUtils.loadAnimation(view.context, R.anim.right_anim).apply {
+            startOffset = 20 // Establece el retraso de inicio en milisegundos
+        }
     }
 
     override fun onCreateViewHolder(
@@ -42,7 +44,6 @@ class ChatsAdapter(val context: Context, private val chatList: ArrayList<ChatMod
 
     override fun onBindViewHolder(holder: ChatsViewHolder, position: Int) {
         val list = chatList[position]
-        //holder.name.text = list.receiver
         userName(list.receiver,holder)
         holder.message.text = list.message
         val image = list.receiverImage
@@ -57,8 +58,7 @@ class ChatsAdapter(val context: Context, private val chatList: ArrayList<ChatMod
             }
             context.startActivity(intent)
         }
-        val animation = AnimationUtils.loadAnimation(context, R.anim.right_anim)
-        holder.itemView.startAnimation(animation)
+        holder.itemView.startAnimation(holder.animation)
     }
 
 
@@ -71,8 +71,6 @@ class ChatsAdapter(val context: Context, private val chatList: ArrayList<ChatMod
         holder.message.visibility = View.GONE
         holder.image.visibility = View.GONE
         holder.content.visibility = View.GONE
-        holder.progressBar.visibility = View.VISIBLE
-        holder.progressBar.setProgress(0)
         // Buscar el nombre del receptor en la colección "users"
         fstore.collection("users").document(idUser)
             .get()
@@ -80,9 +78,6 @@ class ChatsAdapter(val context: Context, private val chatList: ArrayList<ChatMod
                 val username =
                     Snapshot.getString("userName")
                         .toString()
-                holder.progressBar.setProgress(50)
-                holder.progressBar.setProgress(100)
-                holder.progressBar.visibility = View.GONE
                 holder.name.visibility = View.VISIBLE
 
                 holder.name.text = username
@@ -90,5 +85,10 @@ class ChatsAdapter(val context: Context, private val chatList: ArrayList<ChatMod
                 holder.image.visibility = View.VISIBLE
                 holder.content.visibility = View.VISIBLE
             }
+    }
+
+    fun clearMessages() {
+        chatList.clear()
+        notifyDataSetChanged()
     }
 }

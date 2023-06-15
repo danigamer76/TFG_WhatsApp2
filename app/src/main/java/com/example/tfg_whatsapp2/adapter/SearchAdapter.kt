@@ -76,6 +76,14 @@ class SearchAdapter(val context: Context, private val searchList: ArrayList<User
                             .addOnSuccessListener {
                                 Log.d("onSuccess", "Successfully Chat Created With")
                             }
+                        val obj2 = mapOf(
+                            "chatid" to "0"
+                        )
+                        fstore.collection("chats").document()
+                            .collection("count").document("chatid")
+                            .set(obj2).addOnSuccessListener {
+                                Log.d("onSuccess", "Successfully Chat Created With")
+                            }
                     }
                 }
             }

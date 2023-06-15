@@ -43,7 +43,7 @@ class Contacts : Fragment() {
                 for (doc in list) {
                     val friendsID = doc.id
 
-                    val users = listOf(userid)
+                    val users = listOf(friendsID)
                     fstore.collection("chats").whereArrayContainsAny("uids", users).get()
                         .addOnCompleteListener {
                             if (it.isSuccessful) {

@@ -30,7 +30,7 @@ Puedes instalar esta aplicación de dos formas:
     - Haz clic en el botón "Run" en Android Studio para compilar e instalar la aplicación en el dispositivo o emulador.
 
 2. **Instalación desde la APK precompilada**:
-    - Descarga la APK precompilada desde [URL_DESCARGA].
+    - Descarga la APK precompilada desde [[URL_DESCARGA](https://mega.nz/file/J18i3Bga#1KYl6yRrOuFSwd7J5lECZ3BskLaUPJsM9ylrz2anmGA)].
     - En tu dispositivo Android, habilita la opción "Fuentes desconocidas" en la configuración de seguridad. Ten en cuenta que el dispositivo puede mostrar una advertencia de seguridad, indicando que la APK no es de una fuente confiable. Puedes ignorar esta advertencia, ya que la APK es segura.
     - Abre el archivo APK descargado e instálalo en tu dispositivo Android.
 

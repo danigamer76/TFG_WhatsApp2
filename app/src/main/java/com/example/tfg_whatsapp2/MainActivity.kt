@@ -29,7 +29,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var appPagerAdapter: AppPagerAdapter
     private lateinit var auth: FirebaseAuth
     private lateinit var showContacts: FloatingActionButton
-    private val titles = arrayListOf("Chats", "Status", "Calls")
+    private val titles = arrayListOf("Chats", "Estados", "Llamadas")
 
     private val TIME_INTERVAL =
         2000 // # milliseconds, desired time passed between two back presses.
@@ -48,7 +48,7 @@ class MainActivity : AppCompatActivity() {
         viewPager2 = findViewById(R.id.viewPager2Main)
         showContacts = findViewById(R.id.btContacts)
         auth = FirebaseAuth.getInstance()
-        toolbar.title = "WhatsappClone"
+        toolbar.title = "TFG_WhatsApp2"
         setSupportActionBar(toolbar)
         appPagerAdapter = AppPagerAdapter(this)
         viewPager2.adapter = appPagerAdapter

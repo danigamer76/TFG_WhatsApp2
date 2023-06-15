@@ -47,19 +47,19 @@ class MenuActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
                     frameLayout.visibility = View.VISIBLE
                     supportFragmentManager.beginTransaction().replace(R.id.frameLayout, Profile())
                         .commit()
-                    toolbarMenu.title = "Profile"
+                    toolbarMenu.title = "Perfil"
                 }
                 "about" -> {
                     frameLayout.visibility = View.VISIBLE
                     supportFragmentManager.beginTransaction().replace(R.id.frameLayout, About())
                         .commit()
-                    toolbarMenu.title = "About Us"
+                    toolbarMenu.title = "Acerca de"
                 }
                 "search" -> {
                     searchRecyclerView = findViewById(R.id.RecyclerViewSearch)
                     searchLayoutManager = LinearLayoutManager(this)
                     searchRecyclerView.visibility = View.VISIBLE
-                    toolbarMenu.title = "Search Users"
+                    toolbarMenu.title = "Buscar Contactos"
                     setSupportActionBar(toolbarMenu)
                     searchRecyclerView.addItemDecoration(
                         DividerItemDecoration(
@@ -75,7 +75,7 @@ class MenuActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
                     frameLayout.visibility = View.VISIBLE
                     supportFragmentManager.beginTransaction().replace(R.id.frameLayout, Contacts())
                         .commit()
-                    toolbarMenu.title = "FriendsList"
+                    toolbarMenu.title = "Lista de Amigos"
                 }
                 "chatMessaging" -> {
                     frameLayout.visibility = View.VISIBLE
